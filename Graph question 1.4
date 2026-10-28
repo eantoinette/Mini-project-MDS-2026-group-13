@@ -1,0 +1,110 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+#Parameters (with sensible assigned values)
+m = 1.0 
+rm = 0.01
+Jm = 0.0001
+Km = 0.1
+Lm = 0.01
+Rm = 1.0
+
+Jtot = Jm + 0.5 * m * (rm ** 2)  # Total inertia
+
+
+t = np.linspace(0, 2 * np.pi, 1000) 
+dt = t[1] - t[0]  
+
+#Mathematical description of the heart trajectory
+a = 0.1
+b = 0.1
+x1 = a * np.cos(t)
+y1 = b * np.sin(t)
+x2 = a * (16 * np.sin(t) ** 3)
+y2 = b * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t))
+
+#Differentiations
+x1_dot = np.gradient(x1, dt)
+x1_ddot = np.gradient(x1_dot, dt)
+x1_tdot = np.gradient(x1_ddot, dt)
+x2_dot = np.gradient(x2, dt)
+x2_ddot = np.gradient(x2_dot, dt)
+x2_tdot = np.gradient(x2_ddot, dt)
+
+y1_dot = np.gradient(y1, dt)
+y1_ddot = np.gradient(y1_dot, dt)
+y1_tdot = np.gradient(y1_ddot, dt)
+y2_dot = np.gradient(y2, dt)
+y2_ddot = np.gradient(y2_dot, dt)
+y2_tdot = np.gradient(y2_ddot, dt)
+
+
+#Inverse dynamics
+ix1 = (2 * Jtot / (Km * rm)) * x1_ddot
+ix1_dot = (2 * Jtot / (Km * rm)) * x1_tdot
+
+ix2 = (2 * Jtot / (Km * rm)) * x2_ddot
+ix2_dot = (2 * Jtot / (Km * rm)) * x2_tdot
+
+ux1 = Lm * ix1_dot + Rm * ix1 + (2 * Km / rm) * x1_dot
+
+ux2 = Lm * ix2_dot + Rm * ix2 + (2 * Km / rm) * x2_dot
+
+
+
+iy1 = (2 * Jtot / (Km * rm)) * y1_ddot
+iy1_dot = (2 * Jtot / (Km * rm)) * y1_tdot
+
+iy2 = (2 * Jtot / (Km * rm)) * y2_ddot
+iy2_dot = (2 * Jtot / (Km * rm)) * y2_tdot
+
+uy1 = Lm * iy1_dot + Rm * iy1 + (2 * Km / rm) * y1_dot
+
+uy2 = Lm * iy2_dot + Rm * iy2 + (2 * Km / rm) * y2_dot
+
+
+#Motor voltages
+ul1 = 0.5 * (ux1 + uy1)
+ur1 = 0.5 * (ux1 - uy1)
+ul2 = 0.5 * (ux2 + uy2)
+ur2 = 0.5 * (ux2 - uy2)
+
+
+#Plots of the trajectory and the motor voltages
+fig1, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
+
+ax1.plot(x1, y1)
+ax1.set_xlabel('X Position')
+ax1.set_ylabel('Y Position')
+ax1.set_title('Hearts figure')
+ax1.grid(True)
+
+ax2.plot(t, ul1, label='Left Motor Voltage (ul1)')
+ax2.plot(t, ur1, label='Right Motor Voltage (ur1)')
+ax2.set_xlabel('Time (s)')
+ax2.set_ylabel('Motor Voltage (V)')
+ax2.set_title('Motor Voltages over Time')
+ax2.legend()
+ax2.grid(True)
+
+fig2, (ax3, ax4) = plt.subplots(1, 2, figsize=(12, 8))
+
+ax3.plot(x2, y2)
+ax3.set_xlabel('X Position')
+ax3.set_ylabel('Y Position')
+ax3.set_title('Hearts figure')
+ax3.grid(True)
+
+ax4.plot(t, ul2, label='Left Motor Voltage (ul2)')
+ax4.plot(t, ur2, label='Right Motor Voltage (ur2)')
+ax4.set_xlabel('Time (s)')
+ax4.set_ylabel('Motor Voltage (V)')
+ax4.set_title('Motor Voltages over Time')
+ax4.legend()
+ax4.grid(True)
+
+fig1.savefig('trajectories_and_voltages_circle.png')
+fig2.savefig('trajectories_and_voltages_hearts.png')
+
+
