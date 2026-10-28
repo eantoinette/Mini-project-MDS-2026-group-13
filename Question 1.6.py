@@ -7,7 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class p:
     v: float = 0.5          #velocity
-    Tplate: float = 80   #plate temperature   
+    Tplate: float = 100   #plate temperature   
     Tair: float = 20.0      #air temperature
     Tn: float = 220.0       #nozzle temperature
 
@@ -16,7 +16,7 @@ class p:
     rho: float = 1040      #density
 
     hair: float = 10     #convection heat transfer coefficient air
-    hplate: float = 5     #conduction heat transfer coefficient plate
+    hplate: float = 1     #conduction heat transfer coefficient plate
     A: float = 0.001        #area
     Lmax: float = 0.2*np.pi #maximum length of the filament
 
@@ -79,7 +79,7 @@ u0 = np.full(N, p.Tplate)
 #define the simulation time, and timesteps. Choose a time longer than the printing time 
 #and make sure there are more timesteps than d nodes
 t_print = p.Lmax/p.v
-t = np.linspace(0, 5*t_print, 500)
+t = np.linspace(0, 4*t_print, 500)
 
 #solve, choose LSODA method as it does not use too many iterations,
 #but will switch if the the problem is stiff, which is often the case when transforming the PDE
